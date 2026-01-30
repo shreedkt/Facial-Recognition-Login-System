@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Admin - Facial Recognition System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card card-custom">
+            <div class="card-header bg-warning text-dark text-center">
+                <h3 class="mb-0">🔧 Admin Panel</h3>
+                <p class="mb-0">Test recognition and view system information</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Camera Feed -->
+                    <div class="col-md-6">
+                        <div class="face-detection-area">
+                            <h5 class="text-center mb-3">📹 Live Camera Feed</h5>
+                            <div class="video-container">
+                                <img src="{{ url_for('video_feed') }}" class="video-feed" alt="Camera Feed">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Test Panel -->
+                    <div class="col-md-6">
+                        <h5 class="mb-3">🧪 Recognition Test</h5>
+                        
+                        <div class="alert alert-info">
+                            <strong>Current Settings:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>Confidence Threshold: <strong>50</strong></li>
+                                <li>Lower confidence = better match</li>
+                                <li>Range: 0-150 (0 is perfect match)</li>
+                            </ul>
+                        </div>
+                        
+                        <button type="button" class="btn btn-warning btn-custom w-100 mb-3" id="testBtn">
+                            🧪 Test Recognition
+                        </button>
+                        
+                        <div id="testResults" class="mb-4"></div>
+                        
+                        <h6 class="mb-3">📊 Registered Users</h6>
+                        <div id="usersList">
+                            <div class="text-center">
+                                <button class="btn btn-sm btn-outline-primary" onclick="loadUsers()">
+                                    Load Users
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                                🏠 Back to Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('testBtn').addEventListener('click', function() {
+    const testBtn = document.getElementById('testBtn');
+    const testResults = document.getElementById('testResults');
+    
+    testBtn.disabled = true;
+    testBtn.innerHTML = '🧪 Testing...';
+    
+    testResults.innerHTML = '<div class="alert alert-info">Testing recognition...</div>';
+    
+    fetch('/test_recognition', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const wouldLogin = data.would_login ? 
+                '<span class="badge bg-success">✅ Would Login</span>' : 
+                '<span class="badge bg-danger">❌ Would Reject</span>';
+            
+            testResults.innerHTML = `
+                <div class="alert alert-${data.would_login ? 'success' : 'warning'}">
+                    <h6>Recognition Results:</h6>
+                    <p><strong>Detected:</strong> ${data.name}</p>
+                    <p><strong>Confidence:</strong> ${data.confidence.toFixed(1)}</p>
+                    <p><strong>Threshold:</strong> ${data.threshold}</p>
+                    <p><strong>Result:</strong> ${wouldLogin}</p>
+                </div>
+            `;
+        } else {
+            testResults.innerHTML = `
+                <div class="alert alert-warning">
+                    <strong>No Recognition:</strong> ${data.message}
+                </div>
+            `;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        testResults.innerHTML = '<div class="alert alert-danger">Test failed</div>';
+    })
+    .finally(() => {
+        testBtn.disabled = false;
+        testBtn.innerHTML = '🧪 Test Recognition';
+    });
+});
+
+function loadUsers() {
+    // This would require a backend endpoint to list users
+    document.getElementById('usersList').innerHTML = `
+        <div class="alert alert-info">
+            <small>Note: User listing would require additional backend implementation for security reasons.</small>
+        </div>
+    `;
+}
+
+// Auto-test every 10 seconds
+setInterval(() => {
+    const testBtn = document.getElementById('testBtn');
+    if (!testBtn.disabled) {
+        // Uncomment to enable auto-testing
+        // testBtn.click();
+    }
+}, 10000);
+</script>
+{% endblock %}

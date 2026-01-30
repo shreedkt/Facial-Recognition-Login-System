@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section text-center">
+    <div class="container">
+        <h1 class="display-4 mb-4">🔒 Facial Recognition Login System</h1>
+        <p class="lead mb-4">Secure authentication using advanced facial recognition technology</p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <p class="mb-4">Welcome to our cutting-edge facial recognition system. Register your face once and login securely without passwords!</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="row">
+            <!-- Register Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card card-custom h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <i class="bi bi-person-plus" style="font-size: 3rem; color: #28a745;"></i>
+                            <span style="font-size: 3rem;">👤➕</span>
+                        </div>
+                        <h4 class="card-title">New User Registration</h4>
+                        <p class="card-text text-muted">
+                            Create your account by registering your face. We'll capture your facial features securely for future logins.
+                        </p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li>✅ Quick face capture</li>
+                            <li>✅ Secure data storage</li>
+                            <li>✅ One-time setup</li>
+                        </ul>
+                        <a href="{{ url_for('register') }}" class="btn btn-success btn-custom">
+                            Register Now
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login Card -->
+            <div class="col-md-6 mb-4">
+                <div class="card card-custom h-100">
+                    <div class="card-body text-center p-4">
+                        <div class="mb-3">
+                            <span style="font-size: 3rem;">🔐</span>
+                        </div>
+                        <h4 class="card-title">Face Login</h4>
+                        <p class="card-text text-muted">
+                            Already registered? Simply look at the camera and let our system recognize you instantly.
+                        </p>
+                        <ul class="list-unstyled text-start mb-4">
+                            <li>🚀 Instant recognition</li>
+                            <li>🔒 Secure access</li>
+                            <li>📱 No passwords needed</li>
+                        </ul>
+                        <a href="{{ url_for('login') }}" class="btn btn-primary btn-custom">
+                            Login with Face
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mt-5">
+    <div class="col-12">
+        <h3 class="text-center mb-4">Why Choose Facial Recognition?</h3>
+        <div class="row">
+            <div class="col-md-4 text-center mb-3">
+                <span style="font-size: 2rem;">⚡</span>
+                <h5 class="mt-2">Lightning Fast</h5>
+                <p class="text-muted">Recognition happens in milliseconds</p>
+            </div>
+            <div class="col-md-4 text-center mb-3">
+                <span style="font-size: 2rem;">🛡️</span>
+                <h5 class="mt-2">Highly Secure</h5>
+                <p class="text-muted">Advanced algorithms ensure accuracy</p>
+            </div>
+            <div class="col-md-4 text-center mb-3">
+                <span style="font-size: 2rem;">👥</span>
+                <h5 class="mt-2">User Friendly</h5>
+                <p class="text-muted">No passwords to remember</p>
+            </div>
+            <div class="bottom-container">
+    <a class="footer-link" href="https://www.linkedin.com/in/shreedkt/">LinkedIn</a>
+    <a class="footer-link" href="https://twitter.com/shreedkt">Twitter</a>
+    <a class="footer-link" href="https://www.instagram.com/shreedkt/?hl=en">Instagram</a>
+    <p class="copyright">© 2025 Deepak Kumar Tiwari.</p>
+  </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Facial Recognition System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card card-custom">
+            <div class="card-header bg-primary text-white text-center">
+                <h3 class="mb-0">🔐 Face Login</h3>
+                <p class="mb-0">Look at the camera to login instantly</p>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Camera Feed -->
+                    <div class="col-md-6">
+                        <div class="face-detection-area">
+                            <h5 class="text-center mb-3">📹 Live Camera Feed</h5>
+                            <div class="video-container">
+                                <img src="{{ url_for('video_feed') }}" class="video-feed" alt="Camera Feed">
+                            </div>
+                            <div class="text-center mt-3">
+                                <small class="text-muted">
+                                    Position your face in the blue rectangle
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recognition Panel -->
+                    <div class="col-md-6">
+                        <div class="d-flex flex-column h-100">
+                            <h5 class="mb-3">🔍 Face Recognition</h5>
+                            
+                            <div class="alert alert-info">
+                                <strong>Instructions:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <li>Look directly at the camera</li>
+                                    <li>Ensure your face is well-lit</li>
+                                    <li>Stay still for a moment</li>
+                                    <li>Click "Recognize Me" when ready</li>
+                                </ul>
+                            </div>
+                            
+                            <div id="recognitionStatus" class="mb-4">
+                                <div class="text-center">
+                                    <div class="mb-3">
+                                        <span style="font-size: 4rem;">👤</span>
+                                    </div>
+                                    <p class="text-muted">Ready to recognize your face</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <button type="button" class="btn btn-primary btn-custom w-100" id="recognizeBtn">
+                                    🔍 Recognize Me
+                                </button>
+                                
+                                <div id="statusMessage" class="status-message"></div>
+                                
+                                <div class="mt-4 text-center">
+                                    <p class="text-muted">Don't have an account?</p>
+                                    <a href="{{ url_for('register') }}" class="btn btn-outline-success">
+                                        Register New Face
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+let recognitionInProgress = false;
+
+document.getElementById('recognizeBtn').addEventListener('click', function() {
+    if (recognitionInProgress) return;
+    
+    const recognizeBtn = document.getElementById('recognizeBtn');
+    const statusMessage = document.getElementById('statusMessage');
+    const recognitionStatus = document.getElementById('recognitionStatus');
+    
+    recognitionInProgress = true;
+    
+    // Update UI
+    recognizeBtn.disabled = true;
+    recognizeBtn.innerHTML = '🔍 Recognizing...';
+    
+    recognitionStatus.innerHTML = `
+        <div class="text-center">
+            <div class="mb-3">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <p class="text-muted">Analyzing your face...</p>
+        </div>
+    `;
+    
+    statusMessage.innerHTML = '<div class="alert alert-info">Looking for your face... Please stay still!</div>';
+    
+    // Send recognition request
+    fetch('/recognize_face', {
+        method: 'POST'
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Success - show recognition result
+            recognitionStatus.innerHTML = `
+                <div class="text-center">
+                    <div class="mb-3">
+                        <span style="font-size: 4rem; color: #28a745;">✅</span>
+                    </div>
+                    <h5 class="text-success">${data.name} detected!</h5>
+                    <p class="text-muted">Logging you in...</p>
+                </div>
+            `;
+            
+            statusMessage.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+            showMessage(`Welcome back, ${data.name}!`, 'success');
+            
+            // Redirect to dashboard after 2 seconds
+            setTimeout(() => {
+                window.location.href = data.redirect;
+            }, 2000);
+            
+        } else {
+            // Failed recognition
+            recognitionStatus.innerHTML = `
+                <div class="text-center">
+                    <div class="mb-3">
+                        <span style="font-size: 4rem; color: #dc3545;">❌</span>
+                    </div>
+                    <h6 class="text-danger">Face not recognized</h6>
+                    <p class="text-muted">Please try again or register</p>
+                </div>
+            `;
+            
+            statusMessage.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+            showMessage(data.message, 'warning');
+            
+            // Reset UI after 3 seconds
+            setTimeout(() => {
+                recognitionStatus.innerHTML = `
+                    <div class="text-center">
+                        <div class="mb-3">
+                            <span style="font-size: 4rem;">👤</span>
+                        </div>
+                        <p class="text-muted">Ready to recognize your face</p>
+                    </div>
+                `;
+                statusMessage.innerHTML = '';
+                recognitionInProgress = false;
+                recognizeBtn.disabled = false;
+                recognizeBtn.innerHTML = '🔍 Recognize Me';
+            }, 3000);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        
+        recognitionStatus.innerHTML = `
+            <div class="text-center">
+                <div class="mb-3">
+                    <span style="font-size: 4rem; color: #dc3545;">⚠️</span>
+                </div>
+                <h6 class="text-danger">Error occurred</h6>
+                <p class="text-muted">Please try again</p>
+            </div>
+        `;
+        
+        statusMessage.innerHTML = '<div class="alert alert-danger">An error occurred during recognition</div>';
+        showMessage('An error occurred during recognition', 'danger');
+        
+        // Reset after error
+        setTimeout(() => {
+            recognitionStatus.innerHTML = `
+                <div class="text-center">
+                    <div class="mb-3">
+                        <span style="font-size: 4rem;">👤</span>
+                    </div>
+                    <p class="text-muted">Ready to recognize your face</p>
+                </div>
+            `;
+            statusMessage.innerHTML = '';
+            recognitionInProgress = false;
+            recognizeBtn.disabled = false;
+            recognizeBtn.innerHTML = '🔍 Recognize Me';
+        }, 3000);
+    });
+});
+
+// Auto-recognition every 5 seconds (optional)
+setInterval(() => {
+    if (!recognitionInProgress) {
+        // Uncomment the line below if you want auto-recognition
+        // document.getElementById('recognizeBtn').click();
+    }
+}, 5000);
+</script>
+{% endblock %}
