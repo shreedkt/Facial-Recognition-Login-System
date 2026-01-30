@@ -32,6 +32,8 @@ ENV/
 *.sqlite3
 
 # User uploaded images
+!static/
+!static/images/
 static/images/*.jpg
 static/images/*.jpeg
 static/images/*.png
