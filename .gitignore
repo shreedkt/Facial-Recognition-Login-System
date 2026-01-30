@@ -32,15 +32,15 @@ ENV/
 *.sqlite3
 
 # User uploaded images
-!static/
-!static/images/
-static/images/*.jpg
-static/images/*.jpeg
-static/images/*.png
+#!static/
+#!static/images/
+# static/images/*.jpg
+# static/images/*.jpeg
+# static/images/*.png
 
 # Face recognition models
-models/*.yml
-models/*.xml
+# models/*.yml
+# models/*.xml
 
 # IDE
 .vscode/
